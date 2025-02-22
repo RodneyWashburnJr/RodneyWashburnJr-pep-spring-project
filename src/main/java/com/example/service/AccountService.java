@@ -1,8 +1,7 @@
 package com.example.service;
-import com.example.model.Account;
+import com.example.entity.Account;
 import com.example.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -20,7 +19,7 @@ public class AccountService {
     }
     public Optional<Account> login(String username, String password){
         Optional<Account> account = accountRepository.findByUsername(username);
-        if (account.isPresent() && password.matches(password, account.get().getPassword())){
+        if (account.isPresent() && password.matches(password)){
             return account;
         }
         return Optional.empty();
