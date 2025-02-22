@@ -1,4 +1,5 @@
-package com.example.repository;
 
+package com.example.repository;
+@Repository
 public interface MessageRepository {
 }
