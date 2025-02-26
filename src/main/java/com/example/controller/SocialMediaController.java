@@ -6,6 +6,11 @@ import com.example.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +30,7 @@ public class SocialMediaController {
 
     @Autowired
     private MessageService messageService;
+    
 
     // User Registration
     @PostMapping("/accounts/register")
@@ -46,9 +52,18 @@ public class SocialMediaController {
 
     // Create New Message
     @PostMapping("/messages")
-    public ResponseEntity<?> createMessage(@RequestBody Message message) {
+    public ResponseEntity<Message> createMessage(@RequestBody Message message, Authentication authentication) {
+        // Get the authenticated user's ID (assuming the username is the user ID)
+        Integer userId = Integer.parseInt(authentication.getName()); // Adjust if necessary based on your authentication setup
+        
+        // Set the 'postedBy' field to the authenticated user's ID
+        message.setPostedBy(userId);
+        
+        // Save the message using the service
         Message createdMessage = messageService.createMessage(message);
-        return ResponseEntity.ok(createdMessage);
+        
+        // Return the created message with a 200 status code
+        return ResponseEntity.status(HttpStatus.OK).body(createdMessage);  // Explicit 200 OK
     }
 
     // Get All Messages
