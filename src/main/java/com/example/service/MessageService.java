@@ -26,7 +26,8 @@ public class MessageService {
         if (!accountRepository.existsById(message.getPostedBy())) {
             return null;
         }
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+        return savedMessage;
     }
 
     // Get all messages

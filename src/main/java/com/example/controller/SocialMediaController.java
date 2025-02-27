@@ -22,7 +22,7 @@ import java.util.Optional;
  * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping()
 public class SocialMediaController {
 
     @Autowired
@@ -52,18 +52,17 @@ public class SocialMediaController {
 
     // Create New Message
     @PostMapping("/messages")
-    public ResponseEntity<Message> createMessage(@RequestBody Message message, Authentication authentication) {
-        // Get the authenticated user's ID (assuming the username is the user ID)
-        Integer userId = Integer.parseInt(authentication.getName()); // Adjust if necessary based on your authentication setup
-        
-        // Set the 'postedBy' field to the authenticated user's ID
-        message.setPostedBy(userId);
-        
+    public ResponseEntity<Message> createMessage(@RequestBody Message message) {
         // Save the message using the service
         Message createdMessage = messageService.createMessage(message);
         
+        // Check if message creation was successful
+        if (createdMessage == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
         // Return the created message with a 200 status code
-        return ResponseEntity.status(HttpStatus.OK).body(createdMessage);  // Explicit 200 OK
+        return ResponseEntity.status(HttpStatus.OK).body(createdMessage);
     }
 
     // Get All Messages
@@ -95,7 +94,7 @@ public class SocialMediaController {
     }
 
     // Get All Messages from User by Account ID
-    @GetMapping("/users/{accountId}/messages")
+    @GetMapping("/accounts/{accountId}/messages")
     public ResponseEntity<List<Message>> getMessagesFromUser(@PathVariable Integer accountId) {
         List<Message> messages = messageService.getMessagesByUser(accountId);
         return ResponseEntity.ok(messages);
