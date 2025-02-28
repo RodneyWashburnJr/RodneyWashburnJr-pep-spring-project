@@ -81,7 +81,7 @@ public class SocialMediaController {
     @GetMapping("/messages/{messageId}")
     public ResponseEntity<?> getMessageById(@PathVariable Integer messageId) {
         Optional<Message> message = messageService.getMessageById(messageId);
-        return message.isPresent() ? ResponseEntity.ok(message.get()) : ResponseEntity.status(404).body("Message not found");
+        return message.isPresent() ? ResponseEntity.ok(message.get()) : ResponseEntity.status(200).body("");
     }
 
     // Delete Message by ID
@@ -96,10 +96,17 @@ public class SocialMediaController {
     }
 
     // Update Message by ID
-    @PutMapping("/messages/{messageId}")
+    @PatchMapping("/messages/{messageId}")
     public ResponseEntity<?> updateMessage(@PathVariable Integer messageId, @RequestBody String newText) {
-        Optional<Message> updatedMessage = messageService.updateMessage(messageId, newText);
-        return updatedMessage.isPresent() ? ResponseEntity.ok(updatedMessage.get()) : ResponseEntity.status(404).body("Message not found or invalid text");
+        if (newText == null || newText.trim().isEmpty()) {
+            return ResponseEntity.status(400).body("");
+        }
+        int rowsUpdated = messageService.updateMessage(messageId, newText);
+        if (rowsUpdated > 0) {
+            return ResponseEntity.ok(rowsUpdated);  // 200 OK with user object
+        } else {
+            return ResponseEntity.status(400).body("");
+        }
     }
 
     // Get All Messages from User by Account ID

@@ -46,14 +46,19 @@ public class MessageService {
     }
 
     // Update an existing message
-    public Optional<Message> updateMessage(Integer messageId, String newText) {
+    public Integer updateMessage(Integer messageId, String newText) {
+        if (newText == null || newText.trim().isEmpty() || newText.length() > 255) {
+            return 0; 
+        }
+        
         Optional<Message> messageOptional = messageRepository.findById(messageId);
-        if (messageOptional.isPresent() && newText != null && !newText.isBlank() && newText.length() <= 255) {
+        if (messageOptional.isPresent()) {
             Message message = messageOptional.get();
             message.setMessageText(newText);
-            return Optional.of(messageRepository.save(message));
+            messageRepository.save(message);
+            return 1;
         }
-        return Optional.empty(); // Return empty if the message doesn't exist
+        return 0;
     }
 
     // Delete a message
