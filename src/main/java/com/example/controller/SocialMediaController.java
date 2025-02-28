@@ -33,21 +33,26 @@ public class SocialMediaController {
     
 
     // User Registration
-    @PostMapping("/accounts/register")
+    @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Account account) {
         try {
             Account registeredAccount = accountService.register(account.getUsername(), account.getPassword());
             return ResponseEntity.ok(registeredAccount);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(409).body(e.getMessage());
         }
     }
 
     // User Login
-    @PostMapping("/accounts/login")
-    public ResponseEntity<?> login(@RequestParam String username, @RequestParam String password) {
-        Optional<Account> account = accountService.login(username, password);
-        return account.isPresent() ? ResponseEntity.ok(account.get()) : ResponseEntity.status(401).body("Invalid credentials");
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Account account) {
+        Optional<Account> user = accountService.login(account.getUsername(), account.getPassword());
+    
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());  // 200 OK with user object
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
     // Create New Message
@@ -82,8 +87,12 @@ public class SocialMediaController {
     // Delete Message by ID
     @DeleteMapping("/messages/{messageId}")
     public ResponseEntity<?> deleteMessage(@PathVariable Integer messageId) {
-        boolean isDeleted = messageService.deleteMessage(messageId);
-        return isDeleted ? ResponseEntity.ok("Message deleted") : ResponseEntity.status(404).body("Message not found");
+        int rowsDeleted = messageService.deleteMessage(messageId);
+        if (rowsDeleted > 0) {
+            return ResponseEntity.ok(rowsDeleted);  // 200 OK with user object
+        } else {
+            return ResponseEntity.status(200).body("");
+        }
     }
 
     // Update Message by ID

@@ -57,11 +57,11 @@ public class MessageService {
     }
 
     // Delete a message
-    public boolean deleteMessage(Integer messageId) {
+    public Integer deleteMessage(Integer messageId) {
         if (messageRepository.existsById(messageId)) {
             messageRepository.deleteById(messageId);
-            return true;
+            return 1;
         }
-        return false;
+        return 0;
     }
 }

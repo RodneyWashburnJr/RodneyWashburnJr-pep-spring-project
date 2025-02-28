@@ -1,3 +1,4 @@
+/**
 package com.example.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,3 +18,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+    */
