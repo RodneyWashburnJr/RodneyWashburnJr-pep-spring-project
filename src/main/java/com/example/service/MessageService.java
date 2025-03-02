@@ -47,7 +47,7 @@ public class MessageService {
 
     // Update an existing message
     public Integer updateMessage(Integer messageId, String newText) {
-        if (newText == null || newText.trim().isEmpty() || newText.length() > 255) {
+        if (newText == null || newText.trim().isBlank() || newText.length() > 255) {
             return 0; 
         }
         

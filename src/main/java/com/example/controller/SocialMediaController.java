@@ -2,7 +2,10 @@ package com.example.controller;
 import com.example.entity.Account;
 import com.example.service.AccountService;
 import com.example.entity.Message;
+import com.example.repository.MessageRepository;
 import com.example.service.MessageService;
+
+import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +17,7 @@ import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller using Spring. The endpoints you will need can be
@@ -95,10 +99,10 @@ public class SocialMediaController {
         }
     }
 
-    // Update Message by ID
-    @PatchMapping("/messages/{messageId}")
+    /** Update Message by ID
+     @PatchMapping("/messages/{messageId}")
     public ResponseEntity<?> updateMessage(@PathVariable Integer messageId, @RequestBody String newText) {
-        if (newText == null || newText.trim().isEmpty()) {
+        if (newText == null || newText.trim().isBlank()) {
             return ResponseEntity.status(400).body("");
         }
         int rowsUpdated = messageService.updateMessage(messageId, newText);
@@ -108,6 +112,7 @@ public class SocialMediaController {
             return ResponseEntity.status(400).body("");
         }
     }
+        */
 
     // Get All Messages from User by Account ID
     @GetMapping("/accounts/{accountId}/messages")
@@ -115,4 +120,24 @@ public class SocialMediaController {
         List<Message> messages = messageService.getMessagesByUser(accountId);
         return ResponseEntity.ok(messages);
     }
+
+@PatchMapping("/messages/{messageId}")
+public ResponseEntity<?> updateOrCreateMessage(@PathVariable Integer messageId, @RequestBody Message message) {
+    // Validate input
+    if (message.getMessageText() == null || message.getMessageText().trim().isEmpty()) {
+        return ResponseEntity.status(400).body("Message text cannot be empty");
+    }
+
+    // Check if the message exists -> Update if present, otherwise create a new message
+    Optional<Message> existingMessage = messageService.getMessageById(messageId);
+    
+    if (existingMessage.isPresent()) {
+        messageService.updateMessage(messageId, message.getMessageText());
+        return ResponseEntity.ok(1); // 200 OK, 1 row updated
+    } else {
+        Message createdMessage = messageService.createMessage(message);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage); // 201 Created
+    }
 }
+}
+
