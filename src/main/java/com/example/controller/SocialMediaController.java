@@ -53,7 +53,7 @@ public class SocialMediaController {
         Optional<Account> user = accountService.login(account.getUsername(), account.getPassword());
     
         if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());  // 200 OK with user object
+            return ResponseEntity.ok(user.get());  
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
@@ -62,15 +62,15 @@ public class SocialMediaController {
     // Create New Message
     @PostMapping("/messages")
     public ResponseEntity<Message> createMessage(@RequestBody Message message) {
-        // Save the message using the service
+        
         Message createdMessage = messageService.createMessage(message);
         
-        // Check if message creation was successful
+       
         if (createdMessage == null) {
             return ResponseEntity.badRequest().build();
         }
         
-        // Return the created message with a 200 status code
+        
         return ResponseEntity.status(HttpStatus.OK).body(createdMessage);
     }
 
@@ -93,7 +93,7 @@ public class SocialMediaController {
     public ResponseEntity<?> deleteMessage(@PathVariable Integer messageId) {
         int rowsDeleted = messageService.deleteMessage(messageId);
         if (rowsDeleted > 0) {
-            return ResponseEntity.ok(rowsDeleted);  // 200 OK with user object
+            return ResponseEntity.ok(rowsDeleted);  
         } else {
             return ResponseEntity.status(200).body("");
         }
@@ -127,17 +127,20 @@ public ResponseEntity<?> updateOrCreateMessage(@PathVariable Integer messageId, 
     if (message.getMessageText() == null || message.getMessageText().trim().isEmpty()) {
         return ResponseEntity.status(400).body("Message text cannot be empty");
     }
+    if (message.getMessageText().length() > 255) {
+        return ResponseEntity.status(400).body("Message text is too long");
+    }
 
-    // Check if the message exists -> Update if present, otherwise create a new message
+    // Check if the message exists
     Optional<Message> existingMessage = messageService.getMessageById(messageId);
     
     if (existingMessage.isPresent()) {
-        messageService.updateMessage(messageId, message.getMessageText());
-        return ResponseEntity.ok(1); // 200 OK, 1 row updated
+        int rowsUpdated = messageService.updateMessage(messageId, message.getMessageText());
+        return ResponseEntity.ok(rowsUpdated); 
     } else {
-        Message createdMessage = messageService.createMessage(message);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdMessage); // 201 Created
+        return ResponseEntity.status(400).body("Message not found"); 
     }
+    
 }
 }
 
